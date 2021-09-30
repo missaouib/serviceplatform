@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.shop.mapper.ProjectMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, project_code, project_name, project_desc, remark, phone, service_group_id, yiyaobao_project_code, create_time, update_time, pay_type,mch_name,alipay_hfive_appid,alipay_applet_appid
+    </sql>
+
+    <select id="getProjectById" resultType="co.yixiang.modules.shop.web.vo.ProjectQueryVo">
+        select <include refid="Base_Column_List"/> from project where id = #{id}
+    </select>
+
+    <select id="getProjectPageList" resultType="co.yixiang.modules.shop.web.vo.ProjectQueryVo">
+        select <include refid="Base_Column_List"/> from project
+    </select>
+
+</mapper>

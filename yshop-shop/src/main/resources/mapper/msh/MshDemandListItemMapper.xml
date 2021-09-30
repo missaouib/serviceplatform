@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.msh.service.mapper.MshDemandListItemMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, uid, patient_id, lable_id, create_time, update_time
+    </sql>
+
+    <resultMap id="ListResultMap" type="co.yixiang.modules.msh.service.dto.MshDemandListDto">
+     <collection property="orderList"  column="{demandListId=id}" javaType="ArrayList"
+    	select="co.yixiang.modules.msh.service.mapper.MshDemandListItemMapper.selectOrderList" />
+   	 <!--<collection property="mshDemandListItemList"  column="{id=id,type=type}" javaType="ArrayList"-->
+   	    <!--select="co.yixiang.modules.msh.service.mapper.MshDemandListItemMapper.selectListByDemandListID" />-->
+  	</resultMap>
+
+  	<resultMap id="ListResultMap2" type="co.yixiang.modules.msh.service.dto.MshOrderDto">
+     <collection property="orderItemList"  column="{orderId=id}" javaType="ArrayList"
+    	select="co.yixiang.modules.msh.service.mapper.MshDemandListItemMapper.selectOrderItemList" />
+  	</resultMap>
+
+    <select id="selectMshDemandListItemList" resultType="co.yixiang.modules.msh.service.dto.MshDemandListItemDto">
+        SELECT
+			a.*,
+			b.patientname,
+			b.phone,
+			b.province,
+			b.city,
+			b.district,
+			b.detail,
+			b.pic_url,
+			d.order_status,
+			d.id as order_id,
+			d.logistics_num,
+			d.logistics_name,
+			d.logistics_status,
+			d.external_order_id,
+			d.yiyaobao_id,
+			d.drugstore_name,
+			c.med_name as med_name_for_order,
+			c.med_spec as med_spec_for_order,
+			c.purchase_qty as purchase_qty_for_order,
+			c.unit_price as unit_price_for_order
+		FROM
+			msh_demand_list_item a
+		LEFT JOIN msh_demand_list b ON a.demand_list_id = b.id
+		LEFT JOIN msh_order_item c on c.demand_list_item_id = a.id
+		LEFT JOIN msh_order d on c.order_id = d.id
+		WHERE
+			1 = 1
+	     <if test="data.patientname != null and data.patientname !='' ">
+	       AND b.patientname like concat('%',#{data.patientname,jdbcType=VARCHAR},'%')
+	     </if>
+	     <if test="data.phone != null and data.phone !='' ">
+	       AND b.phone like concat('%',#{data.phone,jdbcType=VARCHAR},'%')
+	     </if>
+	     <if test="data.medName != null and data.medName !='' ">
+	       AND a.med_name like concat('%',#{data.medName,jdbcType=VARCHAR},'%')
+	     </if>
+		ORDER BY
+			a.create_time
+    </select>
+
+    <select id="selectMshDemandListList" resultMap="ListResultMap">
+        SELECT
+			*,
+			1 as type
+		FROM
+			msh_demand_list
+		WHERE
+			1 = 1
+	     <if test="data.patientname != null and data.patientname !='' ">
+	       AND patientname like concat('%',#{data.patientname,jdbcType=VARCHAR},'%')
+	     </if>
+	     <if test="data.phone != null and data.phone !='' ">
+	       AND phone like concat('%',#{data.phone,jdbcType=VARCHAR},'%')
+	     </if>
+	     <if test="data.auditStatus != null ">
+	       AND audit_status = #{data.auditStatus,jdbcType=INTEGER}
+	     </if>
+	     <if test="data.saveStatus != null ">
+	       AND save_status = #{data.saveStatus,jdbcType=INTEGER}
+	     </if>
+	     <if test="data.medName != null and data.medName !='' ">
+	       AND id in (select demand_list_id from msh_demand_list_item where med_name like concat('%',#{data.medName,jdbcType=VARCHAR},'%'))
+	     </if>
+	     <if test="data.orderStatus != null and data.orderStatus !='' ">
+	       AND id in (select demand_list_id from msh_order where order_status = #{data.orderStatus,jdbcType=VARCHAR})
+	     </if>
+
+		<if test="data.memberId != null and data.memberId !='' ">
+			AND member_id = #{data.memberId,jdbcType=INTEGER}
+		</if>
+		ORDER BY
+			a.create_time
+    </select>
+
+    <select id="selectOrderList" resultMap="ListResultMap2">
+        SELECT
+			*
+		FROM
+			msh_order
+		WHERE demand_list_id = #{demandListId,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectOrderItemList" resultType="co.yixiang.modules.msh.service.dto.MshDemandListItemDto">
+        SELECT
+			*,
+			msh_demand_list_item.purchase_qty as purchase_qty_demand_item
+		FROM
+			msh_order_item
+		LEFT JOIN msh_demand_list_item on msh_demand_list_item.id = msh_order_item.demand_list_item_id
+		where  order_id = #{orderId,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectListByDemandListID" resultType="co.yixiang.modules.msh.service.dto.MshDemandListItemDto">
+        SELECT
+			a.*,
+			b.patientname,
+			b.patient_id,
+			b.phone,
+			b.province,
+			b.city,
+			b.district,
+			b.detail,
+			b.pic_url,
+			b.case_url,
+			b.application,
+			d.order_status,
+			d.id as order_id,
+			d.logistics_num,
+			d.logistics_status,
+			d.external_order_id,
+			d.yiyaobao_id,
+			IFNULL(c.med_name, a.med_name) as order_med_name,
+			b.member_id
+		FROM
+			msh_demand_list_item a
+		LEFT JOIN msh_demand_list b ON a.demand_list_id = b.id
+		LEFT JOIN msh_order_item c on c.demand_list_item_id = a.id
+		LEFT JOIN msh_order d on c.order_id = d.id
+		WHERE
+			1 = 1
+	     <if test="id != null">
+	       AND a.demand_list_id = #{id,jdbcType=INTEGER}
+	     </if>
+	     <if test="type == 1">
+		   AND c.id IS NULL
+	     </if>
+		ORDER BY
+			a.create_time
+    </select>
+
+
+	<select id="selectListByDate" resultType="co.yixiang.modules.msh.domain.MshRepurchaseReminder">
+        SELECT
+			a.*
+		FROM
+			msh_repurchase_reminder a
+		WHERE
+			1 = 1
+	     <if test="data.name != null and data.name !='' ">
+	       AND a.name like concat('%',#{data.name,jdbcType=VARCHAR},'%')
+	     </if>
+	     <if test="data.phone != null and data.phone !='' ">
+	       AND a.phone like concat('%',#{data.phone,jdbcType=VARCHAR},'%')
+	     </if>
+	     <if test="data.medName != null and data.medName !='' ">
+	       AND a.med_name like concat('%',#{data.medName,jdbcType=VARCHAR},'%')
+	     </if>
+	     <if test="data.nextPurchaseDateFrom != null">
+	     <![CDATA[  AND a.next_purchase_date >= #{data.nextPurchaseDateFrom,jdbcType=TIMESTAMP} ]]>
+	     </if>
+	     <if test="data.nextPurchaseDateTo != null">
+	      <![CDATA[  AND a.next_purchase_date <= #{data.nextPurchaseDateTo,jdbcType=TIMESTAMP} ]]>
+	     </if>
+
+		<if test="data.memberId != null and data.memberId !='' ">
+			AND a.member_id like concat('%',#{data.memberId,jdbcType=VARCHAR},'%')
+		</if>
+		ORDER BY
+			a.next_purchase_date
+    </select>
+
+    <select id="selectListByPhoneAndMedId" resultType="co.yixiang.modules.msh.domain.MshOrderItem">
+		SELECT a.*, c.phone FROM msh_order_item a
+		LEFT JOIN msh_order b on a.order_id=b.id
+		LEFT JOIN msh_demand_list c ON b.demand_list_id = c.id
+		WHERE
+			1 = 1
+	     <if test="phone != null and phone !='' ">
+	       AND c.phone = #{phone,jdbcType=VARCHAR}
+	     </if>
+	     <if test="medId != null">
+	       AND a.med_id = #{medId,jdbcType=INTEGER}
+	     </if>
+		ORDER BY
+			a.create_time ASC
+    </select>
+
+    <resultMap id="ListResultMap3" type="co.yixiang.modules.msh.service.dto.MshPatientInformationDto">
+     <collection property="mshPatientListFileList"  column="{patientId=id}" javaType="ArrayList"
+    	select="co.yixiang.modules.msh.service.mapper.MshDemandListItemMapper.selectMshPatientFileList" />
+  	</resultMap>
+
+    <select id="selectMshPatientListList" resultMap="ListResultMap3">
+        SELECT
+			*
+		FROM
+			msh_patient_information
+		WHERE
+			1 = 1
+		AND delete_status = 0
+	     <if test="data.patientname != null and data.patientname !='' ">
+	       AND patientname like concat('%',#{data.patientname,jdbcType=VARCHAR},'%')
+	     </if>
+	     <if test="data.phone != null and data.phone !='' ">
+	       AND phone like concat('%',#{data.phone,jdbcType=VARCHAR},'%')
+	     </if>
+		<if test="data.memberId != null and data.memberId !='' ">
+			AND member_id like concat('%',#{data.memberId,jdbcType=VARCHAR},'%')
+		</if>
+		ORDER BY id
+    </select>
+
+    <select id="selectMshPatientFileList" resultType="co.yixiang.modules.msh.domain.MshPatientListFile">
+        SELECT
+			*
+		FROM
+			msh_patient_list_file
+		WHERE
+			1 = 1
+	     <if test="patientId != null">
+	       AND patient_id = #{patientId,jdbcType=INTEGER}
+	     </if>
+		ORDER BY id
+    </select>
+    <select id="getCountByMshDemandListId" resultType="java.lang.Integer">
+		select count(a.id) from msh_demand_list_item a
+		LEFT JOIN msh_demand_list b on a.demand_list_id=b.id
+		where b.id =#{demandListId}
+	</select>
+</mapper>

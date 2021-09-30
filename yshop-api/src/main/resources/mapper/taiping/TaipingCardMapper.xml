@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.taiping.mapper.TaipingCardMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, card_number, card_type, sell_channel, agent_cate, organ_id, insert_time, create_time, update_time
+    </sql>
+
+    <select id="getTaipingCardById" resultType="co.yixiang.modules.taiping.web.vo.TaipingCardQueryVo">
+        select <include refid="Base_Column_List"/> from taiping_card where id = #{id}
+    </select>
+
+    <select id="getTaipingCardPageList" resultType="co.yixiang.modules.taiping.web.vo.TaipingCardQueryVo">
+        select <include refid="Base_Column_List"/> from taiping_card
+    </select>
+
+</mapper>

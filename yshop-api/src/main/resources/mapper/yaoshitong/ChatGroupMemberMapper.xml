@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.yaoshitong.mapper.ChatGroupMemberMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, group_id, uid, create_time, update_time
+    </sql>
+
+    <select id="getChatGroupMemberById" resultType="co.yixiang.modules.yaoshitong.web.vo.ChatGroupMemberQueryVo">
+        select <include refid="Base_Column_List"/> from chat_group_member where id = #{id}
+    </select>
+
+    <select id="getChatGroupMemberPageList" resultType="co.yixiang.modules.yaoshitong.web.vo.ChatGroupMemberQueryVo">
+        select <include refid="Base_Column_List"/> from chat_group_member
+    </select>
+
+</mapper>

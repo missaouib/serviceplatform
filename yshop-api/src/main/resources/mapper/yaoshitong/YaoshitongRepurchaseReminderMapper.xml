@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.yaoshitong.mapper.YaoshitongRepurchaseReminderMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, phone, drugstore_name, drugstore_id, last_purchase_date, next_purchase_date, med_name, med_id, med_sku, med_common_name, med_spec, med_unit, med_manufacturer, status, first_purchase_date, purchase_times, purchase_qty, last_purchasse_qty, med_cycle, create_time, update_time
+    </sql>
+
+    <select id="getYaoshitongRepurchaseReminderById" resultType="co.yixiang.modules.yaoshitong.web.vo.YaoshitongRepurchaseReminderQueryVo">
+        select <include refid="Base_Column_List"/> from yaoshitong_repurchase_reminder where id = #{id}
+    </select>
+
+    <select id="getYaoshitongRepurchaseReminderPageList" resultType="co.yixiang.modules.yaoshitong.web.vo.YaoshitongRepurchaseReminderQueryVo">
+        select <include refid="Base_Column_List"/> from yaoshitong_repurchase_reminder
+    </select>
+
+</mapper>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.xikang.mapper.XikangMedMappingMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, xikang_code, yiyaobao_sku, create_time, update_time
+    </sql>
+
+    <select id="getXikangMedMappingById" resultType="co.yixiang.modules.xikang.web.vo.XikangMedMappingQueryVo">
+        select <include refid="Base_Column_List"/> from xikang_med_mapping where id = #{id}
+    </select>
+
+    <select id="getXikangMedMappingPageList" resultType="co.yixiang.modules.xikang.web.vo.XikangMedMappingQueryVo">
+        select <include refid="Base_Column_List"/> from xikang_med_mapping
+    </select>
+
+</mapper>

@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="co.yixiang.mp.yiyaobao.service.mapper.OrdOrderMapper" >
+
+
+  <select id="getOrderPageList_2" resultType="co.yixiang.mp.yiyaobao.vo.OrderVo">
+
+select * from (
+SELECT o.ID AS id, o.ORDER_NO AS orderNo, o.ORDER_TIME AS orderDate, usr.DISPLAY_NAME AS name,
+usr.MOBILE AS mobile, (SELECT t.ITEM_CNAME FROM iplatv5.tedcm01 t WHERE t.CODESET_CODE = 'b2c.orderStatus' AND t.ITEM_CODE = o.STATUS) AS status,
+o.status AS statusCode, o.TOTAL_AMOUNT AS totalAmount, o.ACTUAL_AMOUNT AS discountTotalAmount,
+ (SELECT t.ITEM_CNAME FROM iplatv5.tedcm01 t WHERE t.CODESET_CODE = 'b2c.orderSource' AND t.ITEM_CODE = o.ORDER_SOURCE) AS channelName,
+ IFNULL(ms.SELLER_NAME, '') AS storeName, IFNULL(ml.NAME, '') AS logisticsName,
+ o.FREIGHT_NO AS freightNo, mp.PARTNER_CODE AS partnerCode, mp.PRIVATE_KEY AS privateKey,o.PAY_TIME as payTime,o.PAY_RESULT as payResult
+ FROM yiyao_b2c.ord_order o
+ INNER JOIN yiyao_user.usr_user usr ON usr.ID = o.USER_ID
+ LEFT JOIN yiyao_meta.md_seller ms ON ms.id = o.SELLER_ID
+ LEFT JOIN yiyao_meta.md_logistics ml ON ml.id = o.LOGISTICS_ID
+ LEFT JOIN yiyao_meta.md_partner mp ON mp.id = o.PARTNER_ID
+ WHERE o.IS_DELETE = 0
+ AND o.ORDER_TYPE != 50
+ AND o.ACTUAL_AMOUNT > 0
+
+    <if test="orderQueryParam.mobile != null and orderQueryParam.mobile != ''" >
+
+      AND usr.MOBILE = #{orderQueryParam.mobile}
+  </if>
+
+      <if test="orderQueryParam.statusList != null and orderQueryParam.statusList.size() >0">
+          and o.STATUS  in
+          <foreach item="item" index="index" collection="orderQueryParam.statusList" open="(" separator="," close=")">#{item}</foreach>
+      </if>
+      <if test="orderQueryParam.orderNoList != null and orderQueryParam.orderNoList.size() >0">
+          and o.ORDER_NO  in
+          <foreach item="item" index="index" collection="orderQueryParam.orderNoList" open="(" separator="," close=")">#{item}</foreach>
+      </if>
+
+
+      <if test="orderQueryParam.orderNoListNotExists != null and orderQueryParam.orderNoListNotExists.size() >0">
+          and o.ORDER_NO not in
+          <foreach item="item" index="index" collection="orderQueryParam.orderNoListNotExists" open="(" separator="," close=")">#{item}</foreach>
+      </if>
+      <if test="orderQueryParam.startDate != null and orderQueryParam.startDate != ''" >
+
+          AND o.ORDER_TIME &gt;= #{orderQueryParam.startDate}
+      </if>
+
+      <if test="orderQueryParam.endDate != null and orderQueryParam.endDate != ''" >
+
+          AND o.ORDER_TIME &lt;= #{orderQueryParam.endDate}
+      </if>
+
+      <if test="orderQueryParam.keyword != null and orderQueryParam.keyword != ''" >
+
+          AND EXISTS (SELECT 1 FROM yiyao_b2c.ord_order_detail ood,yiyao_meta.med_medicine mm
+          WHERE ood.ORDER_ID = o.ID AND ood.SKU = mm.SKU
+          AND (mm.MED_NAME LIKE concat('%',#{orderQueryParam.keyword},'%')
+          or mm.COMMON_NAME LIKE concat('%',#{orderQueryParam.keyword},'%')
+          )
+          )
+      </if>
+
+
+      UNION
+
+      SELECT o2.ID AS id, o2.ORDER_NO AS orderNo, o2.ORDER_TIME AS orderDate, usr2.DISPLAY_NAME AS name,
+      usr2.MOBILE AS mobile, (SELECT t.ITEM_CNAME FROM iplatv5.tedcm01 t WHERE t.CODESET_CODE = 'b2c.orderStatus' AND t.ITEM_CODE = o2.STATUS) AS status,
+      o2.status AS statusCode, o2.TOTAL_AMOUNT AS totalAmount, o2.ACTUAL_AMOUNT AS discountTotalAmount,
+      (SELECT t.ITEM_CNAME FROM iplatv5.tedcm01 t WHERE t.CODESET_CODE = 'b2c.orderSource' AND t.ITEM_CODE = o2.ORDER_SOURCE) AS channelName,
+      IFNULL(ms2.SELLER_NAME, '') AS storeName, IFNULL(ml2.NAME, '') AS logisticsName,
+      o2.FREIGHT_NO AS freightNo, mp2.PARTNER_CODE AS partnerCode, mp2.PRIVATE_KEY AS privateKey,o2.PAY_TIME as payTime,o2.PAY_RESULT as payResult
+      FROM yiyao_b2c.ord_order o2
+      INNER JOIN yiyao_user.usr_user usr2 ON usr2.ID = o2.USER_ID
+      LEFT JOIN yiyao_meta.md_seller ms2 ON ms2.id = o2.SELLER_ID
+      LEFT JOIN yiyao_meta.md_logistics ml2 ON ml2.id = o2.LOGISTICS_ID
+      LEFT JOIN yiyao_meta.md_partner mp2 ON mp2.id = o2.PARTNER_ID
+      WHERE o2.IS_DELETE = 0
+      AND o2.ORDER_TYPE != 50
+      AND o2.ACTUAL_AMOUNT > 0
+
+      <if test="orderQueryParam.mobile != null and orderQueryParam.mobile != ''" >
+
+          AND o2.CONTACT_MOBILE =  #{orderQueryParam.mobile}
+      </if>
+
+      <if test="orderQueryParam.statusList != null and orderQueryParam.statusList.size() >0">
+          and o2.STATUS  in
+          <foreach item="item" index="index" collection="orderQueryParam.statusList" open="(" separator="," close=")">#{item}</foreach>
+      </if>
+      <if test="orderQueryParam.orderNoList != null and orderQueryParam.orderNoList.size() >0">
+          and o2.ORDER_NO  in
+          <foreach item="item" index="index" collection="orderQueryParam.orderNoList" open="(" separator="," close=")">#{item}</foreach>
+      </if>
+
+
+      <if test="orderQueryParam.orderNoListNotExists != null and orderQueryParam.orderNoListNotExists.size() >0">
+          and o2.ORDER_NO not in
+          <foreach item="item" index="index" collection="orderQueryParam.orderNoListNotExists" open="(" separator="," close=")">#{item}</foreach>
+      </if>
+      <if test="orderQueryParam.startDate != null and orderQueryParam.startDate != ''" >
+
+          AND o2.ORDER_TIME &gt;= #{orderQueryParam.startDate}
+      </if>
+
+      <if test="orderQueryParam.endDate != null and orderQueryParam.endDate != ''" >
+
+          AND o2.ORDER_TIME &lt;= #{orderQueryParam.endDate}
+      </if>
+
+      <if test="orderQueryParam.keyword != null and orderQueryParam.keyword != ''" >
+
+          AND EXISTS (SELECT 1 FROM yiyao_b2c.ord_order_detail ood2,yiyao_meta.med_medicine mm2
+          WHERE ood2.ORDER_ID = o2.ID AND ood2.SKU = mm2.SKU
+          AND (mm2.MED_NAME LIKE concat('%',#{orderQueryParam.keyword},'%')
+          or mm2.COMMON_NAME LIKE concat('%',#{orderQueryParam.keyword},'%')
+          )
+          )
+      </if>
+) t
+  </select>
+
+
+    <select id="queryYiyaobaoPartnerMed" resultType="co.yixiang.mp.yiyaobao.domain.YiyaobaoMed">
+
+SELECT
+            mpm.SKU AS 'sku',
+            mm.COMMON_NAME AS 'commonName',
+            mm.MED_NAME AS 'medName',
+            mm.SPEC AS 'spec',
+            mm.UNIT AS 'unit',
+            mm.MANUFACTURER AS 'manufacturer',
+            (SELECT t.ITEM_CNAME FROM iplatv5.tedcm01 t WHERE t.CODESET_CODE = 'b2c.drugFormCode' AND t.ITEM_CODE = mm.DRUG_FORM_CODE) AS 'drugForm',
+            mm.LICENSE_NUMBER AS 'licenseNumber',
+            mm.STORAGE_CONDITION AS 'storageCondition',
+            mm.TAX_RATE AS 'taxRate',
+            mm.CATEGORY AS 'category',
+            mpm.PARTNER_RETAIL_PRICE AS 'price',
+            mm.`STORAGE` AS 'storage',
+            mm.APPLY_CROWD_DESC AS 'applyCrowdDesc',
+            mm.DIRECTIONS AS 'directions',
+            mm.QUALITY_PERIOD AS 'qualityPeriod',
+            mm.INDICATION AS 'indication',
+            mm.CONTRAINDICATION AS 'contraindication',
+            mm.ATTENTION AS 'attention',
+            mm.MEDICATION_CYCLE AS 'medicationCycle',
+            case when mpm.`STATUS` = 0 and mpm.IS_DELETE = 0 then 0 else 1 end AS 'status',mm.UNTOWARD_EFFECT as untowardEffect,mm.DRUG_INTERACTION as drugInteraction,mm.FUNCTION_INDICATION as functionIndication, mm.basis as basis,mm.characters as characters,
+            mm.PREGNANCY_LACTATION_DIRECTIONS as 'pregnancyLactationDirections',mm.CHILDREN_DIRECTIONS as 'childrenDirections',mm.ELDERLY_PATIENT_DIRECTIONS as 'elderlyPatientDirections',
+            mpm.IS_DELETE as 'isDelete',mpm.ID as 'medPartnerMedicineId'
+             FROM
+            yiyao_meta.med_partner_medicine mpm
+            inner JOIN yiyao_meta.med_medicine mm ON mpm.SPH_SKU = mm.SKU
+            WHERE 1=1
+            AND mpm.PARTNER_ID = #{partnerId}
+            AND (( mpm.CREATE_TIME>= #{lastupdate} or mpm.UPDATE_TIME>= #{lastupdate}  OR   mm.CREATE_TIME>= #{lastupdate} or mm.UPDATE_TIME >= #{lastupdate}  ))
+            order by mpm.ID
+    </select>
+
+    <select id="queryYiyaobaoStoreMed" resultType="co.yixiang.mp.yiyaobao.domain.YiyaobaoMed">
+        SELECT
+                        mm.SKU AS 'sku',
+                        mm.COMMON_NAME AS 'commonName',
+                        mm.MED_NAME AS 'medName',
+                        mm.SPEC AS 'spec',
+                        mm.UNIT AS 'unit',
+                        mm.MANUFACTURER AS 'manufacturer',
+             (SELECT t.ITEM_CNAME FROM iplatv5.tedcm01 t WHERE t.CODESET_CODE = 'b2c.drugFormCode' AND t.ITEM_CODE = mm.DRUG_FORM_CODE) AS 'drugForm',
+                        mm.LICENSE_NUMBER AS 'licenseNumber',
+                        mm.STORAGE_CONDITION AS 'storageCondition',
+                        mm.TAX_RATE AS 'taxRate',
+                        mm.CATEGORY AS 'category',
+                        mm.`STORAGE` AS 'storage',
+                        mm.APPLY_CROWD_DESC AS 'applyCrowdDesc',
+                        mm.DIRECTIONS AS 'directions',
+                        mm.QUALITY_PERIOD AS 'qualityPeriod',
+                        mm.INDICATION AS 'indication',
+                        mm.CONTRAINDICATION AS 'contraindication',
+                        mm.ATTENTION AS 'attention',
+                        mm.MEDICATION_CYCLE AS 'medicationCycle',mm.UNTOWARD_EFFECT as untowardEffect,mm.DRUG_INTERACTION as drugInteraction,mm.FUNCTION_INDICATION as functionIndication, mm.basis as basis,mm.characters as characters,
+                        mm.PREGNANCY_LACTATION_DIRECTIONS as 'pregnancyLactationDirections',mm.CHILDREN_DIRECTIONS as 'childrenDirections',mm.ELDERLY_PATIENT_DIRECTIONS as 'elderlyPatientDirections'
+             FROM yiyao_b2c.cmd_price a,yiyao_meta.med_medicine mm
+             WHERE a.SKU = mm.SKU
+             AND ( a.UPDATE_TIME >= #{lastupdate} OR a.CREATE_TIME >= #{lastupdate} OR mm.CREATE_TIME >= #{lastupdate} OR mm.UPDATE_TIME >= #{lastupdate} )
+    </select>
+
+
+    <select id="queryYiyaobaoMedImages" resultType="co.yixiang.mp.yiyaobao.domain.YiyaobaoMed">
+      SELECT X.SKU as sku,GROUP_CONCAT(x.FILE_PATH  ORDER BY IS_MAIN DESC,x.SORT_NO asc) AS filePath FROM (
+            SELECT cc.SKU,cid.FILE_PATH,cid.IS_MAIN,cid.SORT_NO
+               FROM yiyao_b2c.cmd_commodity cc JOIN yiyao_b2c.cmd_image_detail cid
+               ON cc.IMAGE_ID = cid.IMAGE_ID
+              WHERE
+                cc.IMAGE_ID !=''
+             AND cid.FILE_PATH != ''
+              AND (cc.CREATE_TIME >= #{lastupdate} OR cc.UPDATE_TIME >= #{lastupdate})
+           ) x GROUP BY x.SKU
+    </select>
+
+
+    <select id="queryYiyaobaoMedImagesBySku" resultType="co.yixiang.mp.yiyaobao.domain.YiyaobaoMed">
+        SELECT X.SKU as sku,GROUP_CONCAT(x.FILE_PATH  ORDER BY IS_MAIN DESC,x.SORT_NO asc) AS filePath FROM (
+    SELECT cc.SKU,cid.FILE_PATH,cid.IS_MAIN,cid.SORT_NO
+    FROM yiyao_b2c.cmd_commodity cc JOIN yiyao_b2c.cmd_image_detail cid
+                                         ON cc.IMAGE_ID = cid.IMAGE_ID
+    WHERE
+        cc.IMAGE_ID !=''
+AND cid.FILE_PATH != ''
+              AND cc.SKU = #{sku}
+        ) x GROUP BY x.SKU
+    </select>
+</mapper>

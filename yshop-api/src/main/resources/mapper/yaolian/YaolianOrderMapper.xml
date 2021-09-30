@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.yaolian.mapper.YaolianOrderMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, create_time, store_id, member_id, assistant_mobile, assistant_number, total_price, free_price, sale_price, isSuper, is_prescription, rx_id, yiyaobao_order_id, yiyaobao_order_no, upload_yiyaobao_flag, upload_yiyaobao_time, province_name, city_name, district_name, address, receiver, receiver_phone, image, patient_name, patient_phone
+    </sql>
+
+    <select id="getYaolianOrderById" resultType="co.yixiang.modules.yaolian.web.vo.YaolianOrderQueryVo">
+        select <include refid="Base_Column_List"/> from yaolian_order where id = #{id}
+    </select>
+
+    <select id="getYaolianOrderPageList" resultType="co.yixiang.modules.yaolian.web.vo.YaolianOrderQueryVo">
+        select <include refid="Base_Column_List"/> from yaolian_order
+    </select>
+
+</mapper>

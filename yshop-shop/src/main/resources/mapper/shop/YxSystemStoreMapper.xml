@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.shop.service.mapper.SystemStoreMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, introduction, phone, address, detailed_address, image, latitude, longitude, valid_time, day_time, add_time, is_show, is_del, day_time_end, day_time_start, valid_time_end, valid_time_start,slider_image,mch_name,alipay_hfive_appid,alipay_applet_appid,wechat_hfive_mchid,wechat_applet_mchid,wechat_app_mchid,wechat_zhongan_mchid
+    </sql>
+
+    <select id="getYxSystemStoreById" resultType="co.yixiang.modules.shop.service.dto.YxSystemStoreQueryVo">
+        select <include refid="Base_Column_List"/> from yx_system_store where id = #{id}
+    </select>
+</mapper>

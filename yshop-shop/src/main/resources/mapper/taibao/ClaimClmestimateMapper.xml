@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.taibao.service.mapper.TbClaimClmestimateMapper">
+
+	<delete id="deleteByMainId" >
+		DELETE 
+		FROM  tb_claim_clmestimate
+		WHERE
+			 claim_info_id = #{mainId} 	</delete>
+	
+	<select id="selectByMainId" resultType="co.yixiang.modules.taibao.domain.TbClaimClmestimate">
+		SELECT * 
+		FROM  tb_claim_clmestimate
+		WHERE
+			 claim_info_id = #{mainId} 	</select>
+</mapper>

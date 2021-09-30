@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.shop.mapper.Product4projectMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, project_no, project_name, product_id, product_unique_id, num, product_name, store_id, store_name
+    </sql>
+
+    <select id="getProduct4projectById" resultType="co.yixiang.modules.shop.web.vo.Product4projectQueryVo">
+        select <include refid="Base_Column_List"/> from product4project where id = #{id}
+    </select>
+
+    <select id="getProduct4projectPageList" resultType="co.yixiang.modules.shop.web.vo.Product4projectQueryVo">
+        select <include refid="Base_Column_List"/> from product4project
+    </select>
+
+</mapper>

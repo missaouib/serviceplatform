@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.shop.mapper.YxDrugUsersMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, uid, name, relation, phone, sex, idcard, create_time, update_time, is_default, is_del, age
+    </sql>
+
+    <select id="getYxDrugUsersById" resultType="co.yixiang.modules.shop.web.vo.YxDrugUsersQueryVo">
+        select <include refid="Base_Column_List"/> from yx_drug_users where id = #{id}
+    </select>
+
+    <select id="getYxDrugUsersPageList" resultType="co.yixiang.modules.shop.web.vo.YxDrugUsersQueryVo">
+        select <include refid="Base_Column_List"/> from yx_drug_users
+    </select>
+
+</mapper>

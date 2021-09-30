@@ -1,0 +1,26 @@
+/**
+ * Copyright (C) 2018-2020
+ * All rights reserved, Designed By www.yixiang.co
+
+ */
+package co.yixiang.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
+import org.springframework.web.socket.server.standard.ServerEndpointExporter;
+
+/**
+ * @author: ZhangHouYing
+ * @date: 2019-08-24 15:44
+ */
+@Configuration
+@EnableWebSocket
+public class WebSocketConfig {
+
+	@Bean
+	public ServerEndpointExporter serverEndpointExporter() {
+		return new ServerEndpointExporter();
+	}
+
+}

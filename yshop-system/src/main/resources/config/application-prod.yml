@@ -1,0 +1,354 @@
+server:
+  ip: 127.0.0.1
+  port: 8102
+#配置数据源
+spring:
+  application:
+    name: wechat-admin
+  datasource:
+    druid:
+      stat-view-servlet:
+        enabled: true
+        loginUsername: admin
+        loginPassword: 123456
+        allow:
+      web-stat-filter:
+        enabled: true
+    dynamic:
+      druid: # 全局druid参数，绝大部分值和默认保持一致。(现已支持的参数如下,不清楚含义不要乱设置)
+        # 连接池的配置信息
+        # 初始化大小，最小，最大
+        initial-size: 5
+        min-idle: 5
+        maxActive: 20
+        # 配置获取连接等待超时的时间
+        maxWait: 60000
+        # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+        timeBetweenEvictionRunsMillis: 60000
+        # 配置一个连接在池中最小生存的时间，单位是毫秒
+        minEvictableIdleTimeMillis: 300000
+        validationQuery: SELECT 1 FROM DUAL
+        testWhileIdle: true
+        testOnBorrow: false
+        testOnReturn: false
+        # 打开PSCache，并且指定每个连接上PSCache的大小
+        poolPreparedStatements: true
+        maxPoolPreparedStatementPerConnectionSize: 20
+        # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+        filters: stat,wall,slf4j
+        # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+        connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
+      datasource:
+        master:
+          url: jdbc:mysql://rm-uf61b0qa1p0ogoy0q.mysql.rds.aliyuncs.com:3306/wechat?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&useUnicode=true
+          username: wechat
+          password: Yiyao2020
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          # 多数据源配置
+          # 正式环境
+        multi-datasource1:
+          url: jdbc:mysql://10.80.29.2:30002/yiyao_b2c?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&useUnicode=true
+          username: yiyaoadmin
+          password: yiyao123
+          driver-class-name: com.mysql.cj.jdbc.Driver
+
+          # 测试环境
+        multi-datasource2:
+          url: jdbc:mysql://10.80.28.4:30001/yiyao_b2c?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&useUnicode=true
+          username: yiyaoadmin
+          password: yiyao123
+          driver-class-name: com.mysql.cj.jdbc.Driver
+  rabbitmq:
+    host: 10.80.32.78
+    port: 5672
+    username: admin
+    password: admin
+    deadExchangeName: dead-letter-exchange
+    deadQueueName: dead-queue-prod
+    bizExchangeName: jeecg.direct.exchange
+    bizDelayExchangeName: jeecg.delayed.exchange
+    delayQueueName: delayQueue-prod
+    ###开启消息确认机制 confirms
+    publisher-confirms: true
+    publisher-returns: true
+    listener:
+      simple:
+        acknowledge-mode: manual #设置确认方式
+        prefetch: 1 #每次处理1条消息
+        retry.max-attempts: 3 # 最大重试次数
+        retry.enabled: true #是否开启消费者重试（为false时关闭消费者重试，这时消费端代码异常会一直重复收到消息）
+        retry.initial-interval: 2000 #重试间隔时间（单位毫秒）
+        default-requeue-rejected: true #该配置项是决定由于监听器抛出异常而拒绝的消息是否被重新放回队列。默认值为true,需要手动basicNack时这些参数谅失效了
+
+#    addresses: 指定client连接到的server的地址，多个以逗号分隔(优先取addresses，然后再取host)
+#    connection-timeout: 连接超时，单位毫秒，0表示无穷大，不超时
+#    parsed-addresses: qw
+#    publisher-confirms: 是否启用【发布确认】
+#    publisher-returns: 是否启用【发布返回】
+#    requested-heartbeat: 指定心跳超时，单位秒，0为不指定；默认60s
+#    virtual-host: 连接到rabbitMQ的vhost
+#    listener:
+#      simple:
+#        acknowledge-mode: 表示消息确认方式，其有三种配置方式，分别是none、manual和auto；默认auto
+#        auto-startup: 是否启动时自动启动容器
+#        concurrency: 最小的消费者数量
+#        default-requeue-rejected: 决定被拒绝的消息是否重新入队；默认是true（与参数acknowledge-mode有关系）
+#        idle-event-interval: 多少长时间发布空闲容器时间，单位毫秒
+#        max-concurrency: 最大的消费者数量
+#        prefetch: 指定一个请求能处理多少个消息，如果有事务的话，必须大于等于transaction数量.
+#        retry:
+#          enabled: 监听重试是否可用
+#          initial-interval: 第一次和第二次尝试发布或传递消息之间的间隔
+#          max-attempts: 最大重试次数
+#          max-interval: 最大重试时间间隔
+#          multiplier: 应用于上一重试间隔的乘数
+#          stateless: 重试是有状态or无状态
+#        transaction-size: 指定一个事务处理的消息数量，最好是小于等于prefetch的数量.
+
+
+  redis:
+    #数据库索引
+    database: 6
+    host: 127.0.0.1
+    port: 6379
+    password:
+    #连接超时时间
+    timeout: 5000
+
+#jwt
+jwt:
+  header: Authorization
+  # 令牌前缀
+  token-start-with: Bearer
+  # 必须使用最少88位的Base64对该令牌进行编码
+  base64-secret: ZmQ0ZGI5NjQ0MDQwY2I4MjMxY2Y3ZmI3MjdhN2ZmMjNhODViOTg1ZGE0NTBjMGM4NDA5NzYxMjdjOWMwYWRmZTBlZjlhNGY3ZTg4Y2U3YTE1ODVkZDU5Y2Y3OGYwZWE1NzUzNWQ2YjFjZDc0NGMxZWU2MmQ3MjY1NzJmNTE0MzI=
+  # 令牌过期时间 此处单位/毫秒 ，默认2小时，可在此网站生成 https://www.convertworld.com/zh-hans/time/milliseconds.html
+  # 2021-07-14 修改为3个月
+  token-validity-in-seconds: 7889400000
+  # 在线用户key
+  online-key: online-token
+  # 验证码
+  code-key: code-key
+
+#是否允许生成代码，生产环境设置为false
+generator:
+  enabled: false
+
+#如果生产环境要开启swagger，需要配置请求地址
+#springfox:
+#  documentation:
+#    swagger:
+#      v2:
+#        host: # 接口域名或外网ip
+
+#是否开启 swagger-ui
+swagger:
+  enabled: false
+  title: 益药商城管理后台API
+  serverUrl: http://localhost:8000
+  version: 2.2
+
+# 文件存储路径
+# 文件存储路径
+#  1.localUrl为空的话上传文件会走七牛云，清转向文档看七牛云配置
+#  2.如果想文件存在本地，并通过本地代理出去请填写localUrl： http://127.0.0.1:8000为本服务的ip+端口号
+#     线上的地址就是你通过nginx代理http://127.0.0.1:8000出来的地址。鉴于群里很多问的这里做个说明不在赘述
+file:
+  path: /home/wechat/file/
+  avatar: /home/wechat/avatar/
+  # 文件大小 /M
+  maxSize: 100
+  avatarMaxSize: 5
+  localUrl: https://wechat-api.yiyaogo.com/api
+yshop:
+  hApi: https://127.0.0.1:8000
+  wechatCode: http://127.0.0.1:8000/upload/qrcode_for_gh_2ac8f422a79f_258.jpg
+  miniAppID:
+ueditor:
+  config: config.json
+  unified: true
+  upload-path: /home/wechat/upload/
+  url-prefix: https://wechat-admin-api.yiyaogo.com/upload
+gjp:
+  api_link: http://apigateway.wsgjp.com.cn/api/
+  companyName: 上海医药众协药业有限公司
+  userName: SH2020
+  userpass: jiang2020@5
+  appkey: 15844344740345131832074881228762
+  app_secret: Fw141jNmtAP8OkGG6awh3T2mtLwYCTsr
+  sign_key: Yiyao2020#
+  get_token_url: http://apigateway.wsgjp.com.cn/api/token
+  redirect_url: http://localhost:8080/GetToken/GetToken.jsp
+  auth_code_url: String.format("%sappkey=%s&redirect_url=%s&keyword=test", "http://ca.mygjp.com:666/account/login?",appkey,redirect_url)
+  shop_key: e097783b-ffd2-4297-b0ff-c8227ddb7ed6
+  token: zK4f4hRxpwehi651mBPM3gkeQEqw2BH96SG32kOr
+  get_authcode_url: http://apigateway.wsgjp.com.cn/api/login
+zhengdatianqing:
+  apiUrl: https://api.papaudit.ilvzhou.com/expressDelivery/ssrc
+  tokenUrl: https://api.papaudit.ilvzhou.com/expressDelivery/ssrc/get-access-token
+  appid: pap3e80145497a3eff6
+  app_secret: 0545343ce72d7a8f6a11de91fd9e6e6c
+yiyao:
+  wechatApiUrl: http://localhost:8104
+  baiduShortUrlToken: 0f8956be6f836b7441f74dcc9f73cda1
+  url: https://m.yiyaogo.com/
+yiyaobao:
+  apiUrlExternal: http://10.80.28.50:8080/
+  orderLogisticsUrl: /logisticsService/fetchLogisticsProcess
+  apiUrl: http://10.80.28.50:8080/mobile/dispatch.do
+  projectNo: 202008170001
+  sellerId: 85
+  appId: SYXKYYY
+  appSecret: ea8af388-6f7f-46c9-8e52-10e3d0470e05
+  queryOrderStatusUrl: externalOrderService/queryOrderStatus
+  imageUrl: https://wechat-api.yiyaogo.com/api
+  needEncrypt: true
+  yiyaoWechatApiUrl: http://wechat-admin-api.yiyaogo.com
+  yiyaoWechatApiFlag: false
+  orderLogisticsByOrderIdUrl: logisticsService/fetchLogisticsProcessByOrderId
+  mshGetProcessByOrderId: logisticsService/mshGetProcessByOrderId
+  orderLogisticsByOrderIdUrlMsh: logisticsService/fetchLogisticsProcessByOrderNo
+  addSingleUrl: prescriptionService/addSingle
+  addSingleMshUrl: prescriptionService/addSingleMsh
+  cancelOrder: prescriptionService/cancelOrder
+  getMedPartnerMedicineUrl: yiyaoMallService/getMedPartnerMedicine
+  yiyaobaoImageUrlPrefix: https://www.yiyaogo.com/yyadmin
+  queueName: yiyaobao-order-queue-prod
+  delayQueueName: yiyaobao-order-queue-delay-prod
+  partnerId: 94c4e06f-dada-4732-9d3d-c69af79cc4e6
+  refundQueueName: yiyaobao-order-refund-queue-prod
+yiyaoShop:
+  apiUrl: https://yshopapi.yiyao-mall.com/gjp/token
+yaoshitong:
+  url: http://yaoshitong.yiyaogo.com
+taiping:
+  CipherKey: LXJK@xsyffwk2020
+  taipingUrlPrefix: https://ininwb.life.cntaiping.com
+
+#小程序配置信息
+wx:
+  miniapp:
+    configs:
+      - appid: wx9987d9950a4fed9a
+        secret: d845ce3dee76d216269c1db666e8a369
+        token: yshop
+        aesKey: yYuBUkC8BXlmCXyu7O6hkzLj4TC5nxsWPfL4CQAZPNY
+        msgDataFormat: JSON
+
+## 特殊项目的支付收款账户信息
+specialProject:
+  rochesma:
+    payeeAccountName: 上药云健康益药药业有限公司
+    payeeBankName: 中国工商银行上海分行
+    payeeBankAccount: 100000000123
+
+xikang:
+  oauthURL: https://passport.xikang.com/oauth/token
+  clientID: WZGY-SY
+  clientSecret: e6662079f9f8e36caeb27d7d833d850d
+  resURL: https://www.xikang.cn/adapter/openapi/process
+  supplierCode: 710172c177db468fa431736aff6b2a90
+  supplierName: 广州上药益药药房
+
+yaolian:
+  apiUrl: http://data.push.backend.uniondrug.cn/api/partner/data
+  nonce: 7896B8FDBE9527DFE88A6DF3B088569D
+  token: uniondrug
+  cooperation: shangyaoDTP
+  apiRefundUrl: http://outreach-partners-orders-api.uniondrug.cn/api/order/refund
+  queueName: yaolian-status-queue-prod
+  delayQueueName: yaolian-status-queue-delay-prod
+oms:
+  updateStatusUrl: http://10.80.28.128:9999/oms-biz/api/order/prescripStatus
+zhonganpuyao:
+  url: https://open.za-doctor.com/open/gateway
+  appKey: cIR0Ev3kW
+  version: 1.0
+  publicKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAr32kw7WccXWNY8y9gd1e51xv7eds6eZsxy9IJ8cNOqovqQOCMC7oWZ+WIYFZBZvDSQvCeu4NpbGV6tbPTOLOyrt7a1bxrJJJndQnE8536bq3fN/4sIwr2rrywPR51LE0SRyoyqCFHlhKgD+3D5NuofEwfavUg9+t0qHTIjKxRgVZNchI4wA6/ggAMw9SDOZIBpmAI3/sGIjxq58IMahMDtUZkSmD0CON/p7cnLT68OlNgqnA4HzRvOO/svbeYcNt2kHn8d07bMaS4FASI/2n5/GTtzQbNoH84ZegBQE2DyvYKd9QP8fNkXltGOt1rpa1w87s5G05mVzKoUVmV5gsMwIDAQAB
+  privateKey: MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCfgrN/isAPYirFRN+FQKYPydbx0Pl0IadKrNWvK5liaXMn00xbeYjAVE8KxMgIhN6Nu9p6UHOIpwoO3c59yxyn1SBgTpU1Soul9GZF29SAGzQWc019QV3wPj03zf6G0K03S451ki9ikL5DZxWLgTduu/FL1K9DKFxaXi23EFHLwrBQh0Y7AH/gRMmHAMrnVaeDUXrOOcdOfTZIgpKsFCisz+S9N64aTHJ0+/wyYuWV6nF9/LT43gGsIGD3yFaSr1WicSBdAPITHmWDrpYBJy4A2nIemCsnhNVcj77mXsWLwJe9V8jTEKiQrkPSPQnk/qTXbFmAyaTJuq2bn+F6Zsn3AgMBAAECggEBAIHrT84rMeGVwGZqgXAkRt2HNWZCIlvfaUXeXjFN3qGUZ/HhHUlIRQT55mNMAe1GY4qnnfyP+HouK3gOWziELbPZWIR4nPkJ3ZJu7Lorofoxrgw3H79MdXnPB8ejJZOi9eKazM6gIa4zXHTDyn2U4pRzycZM1e9qOUZ1fOClDypY//UszJCgiauu7ADDMbH5GBZUO3ZtqxTnC10SA+8XrbF48rooU3evmg3j6AW0VTZa1uKPirEMPJDpJY0NJ+jLSHSzTJS7mIuQhc/2XiAqcxom5srPf36g1j10I894NCgsf6bVQdVZVOBtA5cqIOLbKhUOSHaT1XJLe85KzMhSmxkCgYEA1De8X9xdY/Z7ADPaNwMl9uZnJVYmRHrjnCNYuDc2hZDHZPOa2paskGaRsNjkfIWXzhcJz3giyDxAYDN623vGdqplOu95axJD+I8PpvzaFnkuu0HIoqzUh4stDwxRaSszdW1EKw8IJrEXHs7Ukx96N+IzN+HQ0x3VfuslwzJuehUCgYEAwGs9bVQw8jd4Ig9YbIzCFswJzPv9zqMmusfaTwK2AnwWSow+fO3VhYRmMIEIw0L6DpakVXDkDvbAVWAAtButBFuYk90q2GrrO8CNC2frLrXenQdIHp5viTuboJabg07zuBKUTlt0BAo3gnSlLzxvnw8+co6hg7Q53icq7ZorctsCgYEAhyqQ0sW6vgapxTFBlbRto9qQa9l5OjjDbBmfUoXoNh5GweffA8bgVoDd3rPmo+E7FUrbNsef78Vgg2WGpPErMT3KiEUrIqVZoaENKSD3j0TUHPUDY4mNPF/K7UC9Qa0Ac5SKzJogaPR2c2rtPl/YKmvqj3dG2JCyAMqpHLCsaRkCgYBPR2AFvZx1D7mlfuEVyGDnd6XKGUEXdE0uw80EpL9NAsdEa8gLPQquekCIV4G+wce5XwPSWDL+n1fbVTS1AHomw3533bYbeOH2unziaCyUEEbqN+fVBb46sp6KacMlNNBh1PXZ2wBP8c2xKFIuxh3PUT6PgIi3dPgqucSMJOsl5QKBgQCLdeghGfAZpe3kzhl2Fk69mANUe1sx9mXYifcWSZPqR4+nsfGQHbyvicLuSgZlWpnL/N6PeRiKiG3psovtL+VNShLts35Jvg2ucn4TkfZ/S344/MM9+HbK5nVMP6/ne8eKYrQKVBOS2Eu2cIyvwUq+/JWS+kJQ1aJuSL68ti5B3g==
+  queueName: zhonganpuyao-status-queue-prod
+  delayQueueName: zhonganpuyao-status-queue-delay-prod
+meideyi:
+  queueName: meideyi-status-queue-prod
+  delayQueueName: meideyi-status-queue-delay-prod
+  url: https://www.medimpactintl.com.cn/pbm-drug-card
+
+ant:
+  queueName: ant-status-queue-prod
+  delayQueueName: ant-status-queue-delay-prod
+  orderFreightQueueName: ant-freight-queue-prod
+  delayOrderFreightQueueName: ant-freight-queue-delay-prod
+meditrust:
+  queueName: meditrust-status-queue-prod
+  delayQueueName: meditrust-status-queue-delay-prod
+junling:
+  queueName: junling-status-queue-prod
+  delayQueueName: junling-status-queue-delay-prod
+#配置rocketmq
+#rocketmq:
+#  nameServer: 10.80.28.93:9876
+#  producer:
+#    group: yshop-group
+#    refundGroup: yshop-group-refund
+#  sendMessageTimeout: 300000
+
+
+#ftp
+fpt:
+  host: jkxclaim.cpic.com.cn
+  port: 18022
+  username: jkhj
+  password: '&*90UIop'
+  advancePaymentResultUrl: /home/jkhj/datafiles/sy/txt   #/advancePaymentResultFolder
+  waitReadUrl: /home/jkhj/datafiles/sy/dfsj/
+  readUrl: /home/jkhj/datafiles/sy/accept/
+  lastResultXmlUrl: /home/jkhj/datafiles/sy/xml
+  lastResultImagesUrl: /home/jkhj/datafiles/sy/images
+  lastResultPdfUrl: /home/jkhj/datafiles/sy/pdf
+
+ebs:
+  url:  http://10.80.28.10:8000/OA_HTML/cuxcomrest/cuxcomservletnew
+
+
+msh:
+  domainName: https://wechat.mshasia.com/appwechat
+  secureKey: IGEXuvKUfyv2rTGe
+  queueName: msh-status-queue-prd
+  delayQueueName: msh-status-queue-delay-prd
+  isUpload: false
+
+alipay:
+  format: 'json'
+  charset: 'UTF-8'
+  signType: 'RSA2'
+  serverUrlH5: 'https://openapi.alipay.com/gateway.do'
+  serverUrl: 'https://openapi.alipay.com/gateway.do'
+  appIdH5: '2021002150672444'
+  appId: '2021002150611321'
+  notifyUrlH5: 'https://wechat-api.yiyaogo.com/api/aliPay/notifyH5'
+  notifyUrl: 'https://wechat-api.yiyaogo.com/api/aliPay/notify'
+  returnUrlH5: 'https://m.yiyaogo.com/#/mypackage/pages/ShoppingCart/paySuccess'
+  privateKey: 'MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQChOMW339TStg93oQrJhkfyj5JyZnEI9iz9qpHdpmV6aAUqQJwHtGZxqT4jhT5jUTDpLV2cn6FHCT6boyhiGWF68sj3Aue4eMSNZlVMubd86Gk4jri3006V3zZwK84FymF3/Uyb11lBnjpt3HZooMC6t2aTsi1QY1jbITsLIMmiudxsBx1IThw7Z7AwgjDTc0agUdcAx1GLytjyD6ze6RCU/qjH706NtjhOBfYPgW+VmlSwyi+mgY6n5yerCtsktNCaB5I+wuAbMGYK9c9uBF6VhpwZb0bw7vp5fyUdBzKq9Wvx9/FyTgzvPST6TQ+/XDBvy5uS4h5uTANkkskTcLpTAgMBAAECggEAS6e6kLjGxEKPK5I037DV3mulS23rKUtsfXUnkh3djP13Pwamsa7kS/4hnMWQK0cUbrfNMAxwwEcETEDaWH6Ukf+Qcum4F4cEpV4aNTEJe+IMTnAbGphcTlQ61ZSYz3rTFl2VL6R0zCgWPyuvnRWim3wo9LIuNYUJU3tam7Q9KtDSVUwQ9RS/ypOUBok549b1XDN/9tZoRbfqnrvmZ/cdGfg4pC44kyiAHspTHx3LBVURSzq8G7dnVxqng9SldwIXShUSydUhzfC5csWQr/leFPprhEfUNee7kBkDuMwcJrJwTdJGw/4fwSqudERzbB1EjI/1gLSUnODNH+QDEpmrMQKBgQDUYg5irM7fSiBapIqnaA2D/NvmC1daWNbyfQbvb28Kkma/DWx/hd81J4DYqkjp8SbflZ0UyA6v2USNsxYjIn+LlixTIlJ33EBp899/piPPntFlPLnx4WoKGfBQRnIqX9noy/SHAR+ilmil6aakrUireIVy2KmvgKVTDB15z2FwpQKBgQDCVO9v5a8cc2PQdbKkkF2+FXozqlnH6r9sEg5XSHDGWtnzlLqbeeeZlwIpFkzugBLoucijaf+SjdLXx4qgGsjakJS75hVPoX2ZiWs44GqOJSK46ZDzp2sWsu1x4fRNaQC3idCRMm07OMMNWYMLFrtlDXqEa5+Xa93HIZfDcubVlwKBgQDOyH4bIwf0rdacinIZlpz6MnrkG4y8gZ0e0g6rl4K092AkimxmKTDvLvwreHivlkV0Eda0QijSnCc8E+7s3Iz0mo2jj9pdq0voHTMxtNBPOOHFwP+GeyPkm+a4Mi68BUFEgTgfLj/f7LQNPlYrJjCICztbW4qzPv04w6X7UKgdpQKBgQC3XQkoHiMix0YxVj0fxhCN4RoTUfOxDTFduZPKi9HNd8AbdAS320jKxZAGUMJ6cGJnMZW9i7DZCfUeIWwOMfe/M5kDys/k+U3X57BCVI52XVfr/ocFQL1tB5vATyIDQMaqZ+Fif6BNtvtkx0c82VAsw5ENDbfiWqdC09GtW+evNQKBgQDOdmRSB6EDoaGIodqmWHxVfti7HWvSjGTDymkeZr66Xz+g3RsHYU7jqeDvSTDBK+YFKB/UhBqvGms0NYwCutbqJ2atQN/V0QUQ4cvR65nrlD8QpIkK7oNhDT4tCULEywgkb34LGypnzFpKuAGrVfyvC2MKxuGlyYm84WDOBS4qbQ=='
+  publicKey: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsoOcOrpuVusSP4JUQRVBfc9SDIuAFlPrAG2QOmCWEoxMsNMGv7HIWKnY1cg1dqLNJOcr6cdbcjlgdk6uVdbdSbTmAFUSLvFf7ZrU5C6CR/m0lfl9h8z4l+EIJNc17364ggscHVE3CiPw/37H3/CtNxdxhpopdpbo1jOeUHcWbM0OCS1gF56O8UI/CAN4f1fcF6DdfSBW+f5uRS0J5U7dCAvB0TBNw7XowsPmQ57jpWtLQxm9b7eCnp8an3VCLOv858ijAnG1qqfp2OOwqhLZUtfgdebHVcO1kuQbSVvv13+Yr+TdBvj+5FeUJIus0IcHX9q4vu3WorJXZFpYPqI9owIDAQAB'
+  publicKeyH5: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAni8eo1WqSkah93phFfGguYBcYmyyZyzPQmmA/LuId2A+3Nukspa9SILVFfhU4sRdmnPnyzLdRjOqoaPRF+pN+Ixj2P7PhPoKc3fkAXbvACKFFQqv9+AKnGRg0itCuc/oUSZSmuMtYA6KAoncSKCo/wE5K4k5vbai/QkhFVTqIhsZWPq/9vQbgwK1Dm3z10IDz1x3u5SuBCaxbBwDrx24OMHFmuRVEcJ2/2iK4TEedLrM9DyPrDtLSU/aSts/8+T5+tv/3nauVcymabpbJObLk4rOF3gL0rcrbDFrHpfs9ne2a6bQGrl5z2+l3OCf0qbHXTlzAoOt2OzxVjTDHelhewIDAQAB'
+
+
+mapi:
+  userCertificateName: '广州上药益药药房有限公司.P12'
+  serviceCertificateName: '天翼电子商务有限公司new.cer'
+  passwd: '69524094'
+  alias: 'conname'
+  merchantNo: '3178035915054245'
+  notifyUrl: 'https://wechat-api.yiyaogo.com/api/mapi/notifyH5'
+  path: 'prd'
+  institutionCode: '3178035915054245'
+  returnNotifyUrl: 'https://wechat-api.yiyaogo.com/api/mapi/returnNotifyH5'
+  version: 1.0.3
+
+baiji:
+  companyId: K1000000001
+  secureKey: 123456
+  queryStockUrl: https://stgapi.kdlgemini.com/GToYHAPIService.asmx/queryStock
+  queryMedUrl: https://stgapi.kdlgemini.com/GToYHAPIService.asmx/queryDrugs
+  queryStockRequestType: queryStock
+  queryMedRequestType: queryDrugs

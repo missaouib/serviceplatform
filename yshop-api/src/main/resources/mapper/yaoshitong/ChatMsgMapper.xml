@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.yaoshitong.mapper.ChatMsgMapper">
+  <insert id="InsertChatMsg" parameterType="co.yixiang.modules.yaoshitong.web.vo.ChatMsg">
+    insert into chat_msg (senduserid, reciveuserid,  msgtype, sendtext)
+    values (#{senduserid}, #{reciveuserid}, #{msgtype}, #{sendtext})
+  </insert>
+  <select id="LookTwoUserMsg" resultType="co.yixiang.modules.yaoshitong.web.vo.ChatMsg">
+    select * from chat_msg where
+    (senduserid=#{chatMsg.senduserid} and reciveuserid=#{chatMsg.reciveuserid} ) or
+    (senduserid=#{chatMsg.reciveuserid} and reciveuserid=#{chatMsg.senduserid})
+    order by sendtime asc
+  </select>
+
+
+</mapper>

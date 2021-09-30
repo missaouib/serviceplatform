@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.msh.service.mapper.MshDemandListMapper">
+
+	<sql id="Base_Column_List">
+		id, patientname, phone, province, city, district,detail,create_time,province_code,city_code,district_code,case_url,application,pic_url,patient_id,audit_status,save_status,member_id,source,demand_no,company,vip,per_custo_service,per_custo_service_email,patient_email,disease_name,file_hospital,file_date,receiving_name,relationship,receiving_phone,audit_time,remarks,cancel_reason,remarks_imp,cancel_reason_imp,audit_status_imp,lssue_status,update_time
+	</sql>
+
+	<select id="selectMshDemandLists" resultType="co.yixiang.modules.msh.service.dto.MshDemandListDto">
+		SELECT <include refid="Base_Column_List"/>,IF(create_user='APP' or create_user='Wechat',create_user,(SELECT nick_name FROM `user` WHERE msh_demand_list.create_user = `user`.username) ) as create_user,(select nick_name from `user` where msh_demand_list.audit_name=`user`.username) as audit_name FROM msh_demand_list
+		WHERE
+		1 = 1
+		<if test="demandNo != null and demandNo !='' ">
+			AND demand_no like concat('%',#{demandNo},'%')
+		</if>
+		<if test="demandStatus != null and demandStatus.size > 0">
+			and audit_status IN
+			<foreach collection="demandStatus" item="item" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+		</if>
+		<if test="orderStatus != null and orderStatus !='' ">
+			AND id in ( SELECT demand_list_id FROM msh_order WHERE order_status = #{orderStatus})
+		</if>
+		<if test="startTime != null and startTime!=''">
+			AND create_time &gt;= CONCAT(#{startTime},' 00:00:00')
+		</if>
+		<if test="endTime != null and endTime!=''">
+			AND create_time &lt;= CONCAT(#{endTime},' 23:59:59')
+		</if>
+		<if test="applicant != null and applicant !='' ">
+			AND (create_user like concat('%',#{applicant},'%') or create_user in (SELECT username FROM `user` WHERE nick_name LIKE '%管理员%' or username  LIKE '%管理员%' ))
+		</if>
+		<if test="company != null and company !='' ">
+			AND company like concat('%',#{company},'%')
+		</if>
+		<if test="custoService != null and custoService !='' ">
+			AND per_custo_service like concat('%',#{custoService},'%')
+		</if>
+		<if test="custoServiceEmail != null and custoServiceEmail !='' ">
+			AND per_custo_service_email like concat('%',#{custoServiceEmail},'%')
+		</if>
+		<if test="custoServiceEmail != null and custoServiceEmail !='' ">
+			AND per_custo_service_email like concat('%',#{custoServiceEmail},'%')
+		</if>
+		<if test="memberId != null and memberId !='' ">
+			AND member_id  like concat('%',#{memberId},'%')
+		</if>
+		<if test="vip != null and vip !='' ">
+			AND vip  like concat('%',#{vip},'%')
+		</if>
+		<if test="patientname != null and patientname !='' ">
+			AND patientname like concat('%',#{patientname},'%')
+		</if>
+		<if test="phone != null and phone !='' ">
+			AND phone like concat('%',#{phone},'%')
+		</if>
+		<if test="lssueStatus != null">
+			AND lssue_status = #{lssueStatus}
+		</if>
+	</select>
+
+	<select id="getMshDemandAllAuditPerson" resultType="java.lang.String">
+		select  create_user from msh_demand_list where create_user is not null and create_user !='' GROUP BY create_user
+	</select>
+
+	<select id="getMshDemandAllVip" resultType="java.lang.String">
+	     select  vip from msh_demand_list where vip is not null and vip !='' GROUP BY vip
+	</select>
+    <select id="findByDemandNo" resultType="co.yixiang.modules.msh.domain.MshDemandList">
+		 select * from msh_demand_list where  demand_no = #{demandNo} limit 1
+	</select>
+	<select id="findById" resultType="co.yixiang.modules.msh.domain.MshDemandList">
+		SELECT <include refid="Base_Column_List"/>,IF(create_user='APP' or create_user='Wechat',create_user,(SELECT nick_name FROM `user` WHERE msh_demand_list.create_user = `user`.username) ) as create_user,(select nick_name from `user` where msh_demand_list.audit_name=`user`.username) as audit_name FROM msh_demand_list
+		where id=#{id}
+	</select>
+	<select id="reportList" resultType="java.util.Map">
+		SELECT
+		if(c.patientname is null,'',c.patientname) AS '患者姓名',
+		CONCAT( c.province, c.city, c.district, c.detail ) AS '患者地址',
+		if(c.phone is null,'',c.phone) AS '患者电话',
+		if(c.member_id is null,'',c.member_id) AS 'MSH member id',
+		if(c.demand_no is null,'',c.demand_no) AS '需求单号',
+		if(c.create_time is null,'',DATE_FORMAT(c.create_time,'%Y-%m-%d %H:%i:%s')) AS '需求单生成日期',
+		if(a.med_sku is null,'',a.med_sku) AS 'SKU',
+		if(a.med_name is null,'',a.med_name) AS '商品名',
+		if(a.med_common_name is null,'',a.med_common_name) AS '通用名',
+		if(a.med_spec is null,'',a.med_spec) AS '药品规格',
+		if(a.purchase_qty is null,'',a.purchase_qty) AS '数量',
+		if(a.med_manufacturer is null,'',a.med_manufacturer) AS '生产厂家',
+		if(a.unit_price is null,'',a.unit_price) AS '需求单价格',
+		if(b.external_order_id is null,'',b.external_order_id) AS '销售订单号',
+		(
+		CASE
+		b.order_status
+		WHEN 0 THEN
+		'待审核'
+		WHEN 1 THEN
+		'审核通过'
+		WHEN 2 THEN
+		'审核不通过'
+		WHEN 3 THEN
+		'已发货'
+		WHEN 4 THEN
+		'已完成'
+		WHEN 5 THEN
+		'已退货'
+		WHEN 6 THEN
+		'驳回' ELSE ''
+		END
+		) AS '订单状态',
+		if(b.shipping_date is null,'',DATE_FORMAT(b.shipping_date,'%Y-%m-%d %H:%i:%s') ) AS '发货日期',
+		if(b.logistics_num is null or b.logistics_num='','',a.purchase_qty) AS '已发货数量',
+		if(b.logistics_num is null,'',b.logistics_num)  AS '快递单号',
+		'' AS '发票号'
+		FROM
+		msh_order_item a
+		LEFT JOIN msh_order b ON a.order_id = b.id
+		LEFT JOIN msh_demand_list c ON c.id = b.demand_list_id
+		WHERE
+		c.lssue_status = 1
+		<if test="demandNo != null and demandNo !='' ">
+			AND c.demand_no like concat('%',#{demandNo},'%')
+		</if>
+		<if test="demandStatus != null and demandStatus.size > 0">
+			and c.audit_status IN
+			<foreach collection="demandStatus" item="item" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+		</if>
+		<if test="orderStatus != null and orderStatus !='' ">
+			AND c.id in ( SELECT demand_list_id FROM msh_order WHERE order_status = #{orderStatus})
+		</if>
+		<if test="startTime != null and startTime!=''">
+			AND c.create_time &gt;= CONCAT(#{startTime},' 00:00:00')
+		</if>
+		<if test="endTime != null and endTime!=''">
+			AND c.create_time &lt;= CONCAT(#{endTime},' 23:59:59')
+		</if>
+		<if test="applicant != null and applicant !='' ">
+			AND c.create_user like concat('%',#{applicant},'%')
+		</if>
+		<if test="company != null and company !='' ">
+			AND c.company like concat('%',#{company},'%')
+		</if>
+		<if test="custoService != null and custoService !='' ">
+			AND c.per_custo_service like concat('%',#{custoService},'%')
+		</if>
+		<if test="custoServiceEmail != null and custoServiceEmail !='' ">
+			AND c.per_custo_service_email like concat('%',#{custoServiceEmail},'%')
+		</if>
+		<if test="custoServiceEmail != null and custoServiceEmail !='' ">
+			AND c.per_custo_service_email like concat('%',#{custoServiceEmail},'%')
+		</if>
+		<if test="memberId != null and memberId !='' ">
+			AND c.member_id  like concat('%',#{memberId},'%')
+		</if>
+		<if test="vip != null and vip !='' ">
+			AND c.vip  like concat('%',#{vip},'%')
+		</if>
+		<if test="patientname != null and patientname !='' ">
+			AND c.patientname like concat('%',#{patientname},'%')
+		</if>
+		<if test="phone != null and phone !='' ">
+			AND c.phone like concat('%',#{phone},'%')
+		</if>
+		order by c.create_time desc
+	</select>
+
+</mapper>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.taibao.service.mapper.TbBlackUserMapper">
+    <select id="findByNameOrIdCard" resultType="java.lang.Integer">
+        select count(0) from tb_black_user where FIND_IN_SET(#{name},`name`) or FIND_IN_SET(#{contactsName},`name`) or  FIND_IN_SET(#{idNo},`id_no`)
+    </select>
+</mapper>

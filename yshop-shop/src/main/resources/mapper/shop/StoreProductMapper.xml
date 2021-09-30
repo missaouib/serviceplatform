@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.shop.service.mapper.StoreProductMapper">
+
+
+	<select id="queryProductPrice" resultType="java.math.BigDecimal">
+		SELECT IFNULL(p.settlement_price,IFNULL(p.unit_price,yspav.price)) AS price FROM yx_store_product_attr_value yspav,product4project p
+		WHERE yspav.is_del = 0
+		  AND p.product_id = yspav.product_id
+		  AND p.product_unique_id = yspav.`unique`
+		  AND p.is_del =0
+		  AND p.is_show = 1
+		  AND p.project_no = #{projectCode}
+		  AND yspav.yiyaobao_sku = #{skuCode}
+
+	</select>
+</mapper>

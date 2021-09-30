@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.yaoshitong.mapper.BbsArticleMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, author_id, content, create_at, good, last_reply_at, reply_count, tab, title, is_top, visit_count,images
+    </sql>
+
+    <select id="getBbsArticleById" resultType="co.yixiang.modules.yaoshitong.web.vo.BbsArticleQueryVo">
+        select <include refid="Base_Column_List"/> from bbs_article where id = #{id}
+    </select>
+
+    <select id="getBbsArticlePageList" resultType="co.yixiang.modules.yaoshitong.web.vo.BbsArticleQueryVo">
+        select <include refid="Base_Column_List"/> from bbs_article
+    </select>
+
+</mapper>

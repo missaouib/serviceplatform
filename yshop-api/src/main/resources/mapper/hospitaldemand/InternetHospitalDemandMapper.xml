@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.hospitaldemand.mapper.InternetHospitalDemandMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, patient_name, phone, uid, card_type, card_number, order_number, project_code, prescription_pdf, image, create_time, update_time, time_create, prescription_code, patient_id_card, hospital_name
+    </sql>
+
+    <select id="getInternetHospitalDemandById" resultType="co.yixiang.modules.hospitaldemand.web.vo.InternetHospitalDemandQueryVo">
+        select <include refid="Base_Column_List"/> from internet_hospital_demand where id = #{id}
+    </select>
+
+    <select id="getInternetHospitalDemandPageList" resultType="co.yixiang.modules.hospitaldemand.web.vo.InternetHospitalDemandQueryVo">
+        select <include refid="Base_Column_List"/> from internet_hospital_demand
+    </select>
+
+</mapper>

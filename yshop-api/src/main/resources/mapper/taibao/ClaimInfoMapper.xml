@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.taibao.mapper.TbClaimInfoMapper">
+    <update id="updateImgUrlById">
+        UPDATE tb_claim_info set img_url=#{imgUrl} where id=#{id}
+    </update>
+
+    <select id="getByClaimno" resultType="co.yixiang.modules.taibao.entity.TbClaimInfo">
+        select * from tb_claim_info where claimno=#{claimno}  and del_flag = 0 limit 1;
+    </select>
+    <select id="getByOrderId" resultType="co.yixiang.modules.taibao.web.vo.ClaimInfoVo">
+        select
+        id,claimno,order_id as orderId,img_url as imgUrl,status
+        from tb_claim_info where order_id=#{orderId} and del_flag = 0 limit 1;
+    </select>
+</mapper>

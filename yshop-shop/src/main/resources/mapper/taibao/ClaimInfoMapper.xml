@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.taibao.service.mapper.TbClaimInfoMapper">
+
+    <select id="getByClaimno" resultType="co.yixiang.modules.taibao.domain.TbClaimInfo">
+        select * from tb_claim_info where claimno=#{claimno} limit 1;
+    </select>
+</mapper>

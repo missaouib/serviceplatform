@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.yaoshitong.mapper.YaoshitongPrescriptionMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, prescription_no, patient_id, pharmacist_id, is_prescription, prescription_date, hospital_name, doctor_name, depart_name, diagnosis, med_detail, create_time, update_time, image_path
+    </sql>
+
+    <select id="getYaoshitongPrescriptionById" resultType="co.yixiang.modules.yaoshitong.web.vo.YaoshitongPrescriptionQueryVo">
+        select <include refid="Base_Column_List"/> from yaoshitong_prescription where id = #{id}
+    </select>
+
+    <select id="getYaoshitongPrescriptionPageList" resultType="co.yixiang.modules.yaoshitong.web.vo.YaoshitongPrescriptionQueryVo">
+        select <include refid="Base_Column_List"/> from yaoshitong_prescription
+    </select>
+
+</mapper>

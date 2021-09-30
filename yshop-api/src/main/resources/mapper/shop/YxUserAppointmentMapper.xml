@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.shop.mapper.YxUserAppointmentMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, event_id, uid, mobile, event_name, add_time, status, name
+    </sql>
+
+    <select id="getYxUserAppointmentById" resultType="co.yixiang.modules.shop.web.vo.YxUserAppointmentQueryVo">
+        select <include refid="Base_Column_List"/> from yx_user_appointment where id = #{id}
+    </select>
+
+    <select id="getYxUserAppointmentPageList" resultType="co.yixiang.modules.shop.web.vo.YxUserAppointmentQueryVo">
+        select <include refid="Base_Column_List"/> from yx_user_appointment
+    </select>
+
+</mapper>

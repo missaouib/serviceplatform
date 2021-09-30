@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.shop.mapper.YxStoreProductMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, mer_id, image, slider_image, store_name, store_info, keyword, bar_code, cate_id, price, vip_price, ot_price, postage, unit_name, sort, sales, stock, is_show, is_hot, is_benefit, is_best, is_new, description, add_time, is_postage, is_del, mer_use, give_integral, cost, is_seckill, is_bargain, is_good, ficti, browse, code_path, soure_link, upload_gjp_flag, yiyaobao_sku, license_number, common_name, english_name, pinyin_name, pinyin_short_name, drug_form_code, drug_form, spec, packages, manufacturer, storage_condition, is_basic, is_birth_control, is_stimulant, is_psychotropic, tax_rate, unit_code, unit, package_unit, unit_exchange, is_open_stock, med_length, med_width, med_height, med_gross_weight, med_capacity, medium_amount, medium_unit_code, medium_unit_name, medium_length, medium_width, medium_height, medium_weight, medium_capacity, large_amount, large_unit_code, large_unit_name, large_length, large_width, large_height, large_weight, large_capacity, attention, basis, characters, function_category, indication, directions, untoward_effect, contraindication, drug_interaction, pharmacological_effect, storage, standard, production_address, tel, product_area, function_indication, quality_period, is_import, business_directory_code, category, is_gift_box, license_deadline, is_authorization, is_compound_preparation, is_cold_chain, seo, pregnancy_lactation_directions, children_directions, elderly_patient_directions, apply_crowd_desc, apply_crowd_code, phamacokinetics, overdosage, clinical_test, use_unit, pharmacology_toxicology, is_heterotype, cert_imag_id, medication_cycle
+    </sql>
+
+    <select id="getYxStoreProductById" resultType="co.yixiang.modules.shop.web.vo.YxStoreProductQueryVo">
+        select <include refid="Base_Column_List"/> from yx_store_product where is_del=0  and id = #{id}
+    </select>
+
+    <select id="getYxStoreProductPageList" resultType="co.yixiang.modules.shop.web.vo.YxStoreProductQueryVo">
+        select <include refid="Base_Column_List"/> from yx_store_product
+    </select>
+
+    <select id="getProduct4ProjectPageList" resultType="co.yixiang.modules.meideyi.Goods">
+
+ SELECT ysp.store_name AS name,ysp.common_name AS generalName,ysp.manufacturer AS factory,ysp.spec AS normal,ysp.license_number AS approvalNumber,
+        ysp.unit AS packageUnit,ysp.image AS itemImg, ysp.slider_image AS viceImage, IFNULL(p.unit_price,yspav.price) *100  AS price,yspav.stock,
+        ysp.id as code
+  FROM yx_store_product ysp,yx_store_product_attr_value yspav,product4project p
+  WHERE ysp.id = yspav.product_id
+  AND yspav.`unique` = p.product_unique_id
+  AND p.project_no = #{projectCode}
+    <if test="keyword !=null and keyword != '' ">
+        AND (ysp.store_name LIKE CONCAT('%',#{keyword},'%') OR ysp.common_name LIKE CONCAT('%',#{keyword},'%')
+
+         <foreach collection="ids" item="item" index="index"
+                 open=" OR (" separator="or" close=")"> FIND_IN_SET( #{item} ,ysp.disease_id_cloud)
+         </foreach>
+
+         )
+    </if>
+
+
+    </select>
+
+
+    <select id="getYxStoreProductPageList4Store" resultType="co.yixiang.modules.shop.web.vo.YxStoreProductQueryVo" >
+        select a.id as id,a.store_name as storeName,a.image as image,a.common_name as commonName,a.manufacturer as manufacturer,a.drug_form as drugForm,a.spec as spec,a.unit as unit,a.is_need_cloud_produce as isNeedCloudProduce
+             ,MAX(yspav.price) AS price ,MAX(yspav.price) as priceMax,MIN(yspav.price) AS priceMin,a.sales AS sales,a.sort as sort,a.yiyaobao_sku as yiyaobaoSku
+        from yx_store_product a,yx_store_product_attr_value yspav
+        WHERE a.id = yspav.product_id
+          AND yspav.stock >0
+          AND yspav.is_del = 0
+          AND a.is_show = 1
+          AND a.is_del = 0
+          AND yspav.suk != '广州上药益药药房有限公司（云药房）'
+        <if test="param.storeList !=null and param.storeList.size() != 0 ">
+            AND yspav.store_id IN
+            <foreach collection="param.storeList" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="param.diseaseParentId !=null and param.diseaseParentId != '' ">
+            AND FIND_IN_SET(#{param.diseaseParentId},a.disease_parent_id)
+        </if>
+
+        <if test="param.diseaseId !=null and param.diseaseId != '' ">
+            AND FIND_IN_SET(#{param.diseaseId},a.disease_id)
+        </if>
+
+
+        <if test="param.keyword !=null and param.keyword != '' ">
+            AND ( a.store_name like concat('%',#{param.keyword} ,'%') or a.common_name like concat('%',#{param.keyword} ,'%')  or a.keyword like concat('%',#{param.keyword} ,'%') or a.pinyin_name like concat('%',#{param.pinYin} ,'%') or FIND_IN_SET(#{param.keyword},a.keyword) )
+        </if>
+
+        <if test="param.manufacturer !=null and param.manufacturer != '' ">
+            AND a.manufacturer = #{param.manufacturer}
+        </if>
+
+        <if test="param.news !=null and param.news != '' and param.news == '1'.toString() ">
+            AND a.is_new = 1
+        </if>
+
+        GROUP BY a.id ,a.store_name ,a.image ,a.common_name ,a.manufacturer ,a.drug_form,a.spec,a.unit ,a.is_need_cloud_produce,a.yiyaobao_sku
+
+        <choose>
+            <when test=" param.priceOrder !=null and param.priceOrder != '' ">
+                order by price ${param.priceOrder}
+            </when>
+
+            <when test=" param.salesOrder !=null and param.salesOrder != '' ">
+                order by sales ${param.salesOrder}
+            </when>
+
+            <otherwise>
+                order by sort desc,sales desc,id
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="getYxStoreProductPageList4Project" resultType="co.yixiang.modules.shop.web.vo.YxStoreProductQueryVo" >
+        select a.id as id,a.store_name as storeName,a.image as image,a.common_name as commonName,a.manufacturer as manufacturer,a.drug_form as drugForm,a.spec as spec,a.unit as unit,a.is_need_cloud_produce as isNeedCloudProduce
+        ,MAX( IFNULL(p.unit_price,yspav.price)) AS price ,MAX( IFNULL(p.unit_price,yspav.price)) as priceMax,MIN(IFNULL(p.unit_price,yspav.price)) AS priceMin,a.sales AS sales,a.sort as sort,a.yiyaobao_sku as yiyaobaoSku
+        from yx_store_product a,yx_store_product_attr_value yspav,product4project p
+        WHERE a.id = yspav.product_id
+        AND yspav.stock >0
+        AND yspav.is_del = 0
+        AND a.is_show = 1
+        AND a.is_del = 0
+        AND p.product_unique_id = yspav.`unique`
+        AND p.is_del = 0
+        AND p.is_show = 1
+        AND p.project_no = #{param.projectCode}
+        <if test="param.storeList !=null and param.storeList.size() != 0 ">
+            AND yspav.store_id IN
+            <foreach collection="param.storeList" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="param.diseaseParentId !=null and param.diseaseParentId != '' ">
+            AND FIND_IN_SET(#{param.diseaseParentId},a.disease_parent_id)
+        </if>
+
+        <if test="param.diseaseId !=null and param.diseaseId != '' ">
+            AND FIND_IN_SET(#{param.diseaseId},a.disease_id)
+        </if>
+
+
+        <if test="param.keyword !=null and param.keyword != '' ">
+            AND ( a.store_name like concat('%',#{param.keyword} ,'%') or a.common_name like concat('%',#{param.keyword} ,'%')  or a.keyword like concat('%',#{param.keyword} ,'%') or a.pinyin_name like concat('%',#{param.pinYin} ,'%') or FIND_IN_SET(#{param.keyword},a.keyword) )
+        </if>
+
+        <if test="param.manufacturer !=null and param.manufacturer != '' ">
+            AND a.manufacturer = #{param.manufacturer}
+        </if>
+
+        <if test="param.news !=null and param.news != '' and param.news == '1'.toString() ">
+            AND a.is_new = 1
+        </if>
+
+        <if test="param.cardType !=null and param.cardType != '' and param.cardType == 'base'.toString() ">
+            AND a.label1 = 'Y'
+        </if>
+
+        <if test="param.cardType !=null and param.cardType != '' and param.cardType == 'chronic'.toString() ">
+            AND a.label2 = 'Y'
+        </if>
+
+        <if test="param.cardType !=null and param.cardType != '' and param.cardType == 'advanced'.toString() ">
+            <choose>
+                <when test=" param.drugStoreType !=null and param.drugStoreType != '' and  param.drugStoreType == '85'.toString()">
+                    AND a.label1 = 'Y'
+                </when>
+
+                <when test=" param.drugStoreType !=null and param.drugStoreType != '' and  param.drugStoreType == '50'.toString() ">
+                    AND a.label3 = 'Y'
+                </when>
+
+                <otherwise>
+                    AND (a.label1 = 'Y' OR a.label3 = 'Y')
+                </otherwise>
+            </choose>
+        </if>
+
+        GROUP BY a.id ,a.store_name ,a.image ,a.common_name ,a.manufacturer ,a.drug_form,a.spec,a.unit ,a.is_need_cloud_produce,a.yiyaobao_sku
+
+        <choose>
+            <when test=" param.priceOrder !=null and param.priceOrder != '' ">
+                order by price ${param.priceOrder}
+            </when>
+
+            <when test=" param.salesOrder !=null and param.salesOrder != '' ">
+                order by sales ${param.salesOrder}
+            </when>
+
+            <otherwise>
+                order by sort desc,sales desc,id
+            </otherwise>
+        </choose>
+    </select>
+</mapper>

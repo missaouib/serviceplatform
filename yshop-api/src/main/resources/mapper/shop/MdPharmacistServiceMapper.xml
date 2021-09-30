@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.shop.mapper.MdPharmacistServiceMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ID, STATUS, ONLINE, IS_DEFALUT, SOURCE, FOREIGN_ID, NAME, SEX, CERTIFICATE_NO, DESCRIPTION, CUSTOMER_SERVICE_ACCOUNT, CUSTOMER_SERVICE_GROUP, REMARK, CREATE_USER, CREATE_TIME, UPDATE_USER, UPDATE_TIME, FOREIGN_NAME
+    </sql>
+
+    <select id="getMdPharmacistServiceById" resultType="co.yixiang.modules.shop.web.vo.MdPharmacistServiceQueryVo">
+        select <include refid="Base_Column_List"/> from md_pharmacist_service where id = #{id}
+    </select>
+
+    <select id="getMdPharmacistServicePageList" resultType="co.yixiang.modules.shop.web.vo.MdPharmacistServiceQueryVo">
+        select <include refid="Base_Column_List"/> from md_pharmacist_service
+    </select>
+
+</mapper>

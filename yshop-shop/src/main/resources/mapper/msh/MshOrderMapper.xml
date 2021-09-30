@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.yixiang.modules.msh.service.mapper.MshOrderMapper">
+
+  	<resultMap id="ListResultMap2" type="co.yixiang.modules.msh.service.dto.MshOrderDto">
+     <collection property="orderItemList"  column="{orderId=id}" javaType="ArrayList"
+    	select="co.yixiang.modules.msh.service.mapper.MshOrderMapper.selectOrderItemList" />
+  	</resultMap>
+
+    <select id="getMshOrderByDemandListId" resultMap="ListResultMap2">
+        SELECT
+			*
+		FROM
+			msh_order
+		WHERE demand_list_id = #{demandListId,jdbcType=INTEGER}
+    </select>
+
+	<select id="selectOrderItemList" resultType="co.yixiang.modules.msh.service.dto.MshDemandListItemDto">
+		SELECT
+		*,
+		msh_demand_list_item.purchase_qty as purchase_qty_demand_item
+		FROM
+		msh_order_item
+		LEFT JOIN msh_demand_list_item on msh_demand_list_item.id = msh_order_item.demand_list_item_id
+		where  order_id = #{orderId,jdbcType=INTEGER}
+	</select>
+	<select id="getByExternalOrderId" resultMap="ListResultMap2">
+		SELECT
+			*
+		FROM
+			msh_order
+		WHERE external_order_id = #{phaOrderNo} limit 1
+	</select>
+    <select id="getCountByMshDemandListId" resultType="java.lang.Integer">
+		select count(a.id) from msh_order_item a
+		LEFT JOIN msh_order b on a.order_id=b.id
+		where demand_list_id =#{demandListId}
+	</select>
+    <select id="getAllTenDayNotAnswer" resultType="co.yixiang.modules.msh.domain.MshOrder">
+		select * from msh_order where audit_time is not null and order_status=6 and audit_time <![CDATA[ < ]]> curdate()-interval 10 day
+	</select>
+
+</mapper>
